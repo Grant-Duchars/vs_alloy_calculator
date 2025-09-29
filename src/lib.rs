@@ -40,7 +40,7 @@ pub use alloy::alloy_types::AlloyType;
 pub use base_metal::BaseMetal;
 pub mod prelude {
     pub use crate::alloy::Alloy;
-    // Gives AlloyType and all of the types of alloys
+    // Gives AlloyType and all of the types of alloys as standalone types and as an enum
     pub use crate::alloy::alloy_types::*;
     pub use crate::base_metal::BaseMetal;
     pub use crate::base_metal::BaseMetal::*;
@@ -48,6 +48,16 @@ pub mod prelude {
 // Imports
 use AlloyError::*;
 use BaseMetal::*;
+
+pub mod unit_constants {
+    pub const NUGGET_UNIT_AMOUNT: i32 = 5;
+    pub const INGOT_UNIT_AMOUNT: i32 = 100;
+    pub const MAX_STACK_SIZE: i32 = 128;
+    pub const CRUCIBLE_SLOTS: i32 = 4;
+    pub const MAX_POSSIBLE_INGOTS: i32 =
+        MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT * CRUCIBLE_SLOTS / INGOT_UNIT_AMOUNT; // 25
+    pub const MAX_UNITS_PER_SLOT: i32 = MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT; // 640
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum AlloyError {
@@ -75,13 +85,3 @@ impl<T: Copy + PartialOrd> ConstituentRange<T> {
     }
 }
 type Range = ConstituentRange<f32>;
-
-pub mod unit_constants {
-    pub const NUGGET_UNIT_AMOUNT: i32 = 5;
-    pub const INGOT_UNIT_AMOUNT: i32 = 100;
-    pub const MAX_STACK_SIZE: i32 = 128;
-    pub const CRUCIBLE_SLOTS: i32 = 4;
-    pub const MAX_POSSIBLE_INGOTS: i32 =
-        MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT * CRUCIBLE_SLOTS / INGOT_UNIT_AMOUNT; // 25
-    pub const MAX_UNITS_PER_SLOT: i32 = MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT; // 640
-}

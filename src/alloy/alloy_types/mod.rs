@@ -37,7 +37,8 @@ pub trait AlloyType: private::AlloyType {
     /// assert!(validation);
     /// ```
     fn check_percentages_total(percentages: impl AsRef<[BaseMetal<f32>]>) -> bool {
-        percentages.as_ref().iter().map(|p| **p).sum::<f32>() == 1.0
+        let sum = percentages.as_ref().iter().map(|p| **p).sum::<f32>();
+        (sum - 1.0).abs() < 0.01
     }
 
     /// Checks if the supplied percentages are within the ranges for the alloy
@@ -130,6 +131,20 @@ mod private {
             percentages: &[BaseMetal<f32>],
         ) -> Result<Box<[BaseMetal<f32>]>, AlloyError>;
     }
+}
+
+/// Enum of the available alloys. If you are trying to generate values for a given alloy, use the [`Alloy`] struct
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Alloys {
+    TinBronze,
+    BismuthBronze,
+    BlackBronze,
+    Brass,
+    Molybdochalkos,
+    LeadSolder,
+    SilverSolder,
+    Electrum,
+    Cupronickel,
 }
 
 // Modules

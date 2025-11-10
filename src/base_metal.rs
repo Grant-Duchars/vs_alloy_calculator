@@ -23,6 +23,15 @@ use BaseMetal::*;
 
 impl<T: Copy> BaseMetal<T> {
     /// Returns the name of the base metal variant as a string
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let copper = Copper(5);
+    /// let name = copper.name();
+    ///
+    /// assert_eq!("Copper", name);
+    /// ```
     pub fn name(&self) -> &str {
         match self {
             Nickel(_) => NICKEL,
@@ -33,6 +42,30 @@ impl<T: Copy> BaseMetal<T> {
             Gold(_) => GOLD,
             Lead(_) => LEAD,
             Bismuth(_) => BISMUTH,
+        }
+    }
+
+    /// Updates the base metal with the new value in place
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let mut copper = Copper(5);
+    /// assert_eq!(5, *copper);
+    ///
+    /// copper.update(10);
+    /// assert_eq!(10, *copper);
+    /// ```
+    pub fn update(&mut self, value: T) {
+        match self {
+            Nickel(_) => *self = Nickel(value),
+            Copper(_) => *self = Copper(value),
+            Zinc(_) => *self = Zinc(value),
+            Silver(_) => *self = Silver(value),
+            Tin(_) => *self = Tin(value),
+            Gold(_) => *self = Gold(value),
+            Lead(_) => *self = Lead(value),
+            Bismuth(_) => *self = Bismuth(value),
         }
     }
 }

@@ -6,8 +6,8 @@
 //! ```rust
 //! use vs_alloy_calculator::prelude::*;
 //!
-//! let alloy = Alloy::<TinBronze>::try_new([Copper(0.92), Tin(0.08)], 7).expect("should be valid");
-//! let nuggets = alloy.constituents().nuggets();
+//! let alloy = AlloyData::<TinBronze>::try_new([Copper(0.92), Tin(0.08)], 7).expect("should be valid");
+//! let nuggets = alloy.nuggets();
 //!
 //! assert_eq!(Copper(128), nuggets[0]);
 //! assert_eq!(Tin(12), nuggets[1]);
@@ -17,15 +17,15 @@
 //!
 //! let input = { // Mock getting input from user
 //!     // Show the user the valid ranges for the alloy
-//!     let ranges = Alloy::<BismuthBronze>::percentage_ranges();
+//!     let ranges = AlloyData::<BismuthBronze>::percentage_ranges();
 //!     // Get the input back from the user
 //!     (Box::from([Copper(0.60), Zinc(0.20), Bismuth(0.20)]), 13)
 //! };
 //!
-//! let alloy = Alloy::<BismuthBronze>::try_new(input.0, input.1).expect("should be valid");
+//! let alloy = AlloyData::<BismuthBronze>::try_new(input.0, input.1).expect("should be valid");
 //! assert_eq!(
 //!     &[Copper(156), Zinc(52), Bismuth(52)],
-//!     alloy.constituents().nuggets(),
+//!     alloy.nuggets(),
 //! );
 //! ```
 
@@ -35,11 +35,13 @@ mod base_metal;
 mod tests;
 // Re-exports
 pub use alloy::Alloy;
+pub use alloy::AlloyData;
 pub use alloy::alloy_types;
 pub use alloy::alloy_types::AlloyType;
 pub use base_metal::BaseMetal;
 pub mod prelude {
     pub use crate::alloy::Alloy;
+    pub use crate::alloy::AlloyData;
     // Gives AlloyType and all of the types of alloys as standalone types and as an enum
     pub use crate::alloy::alloy_types::*;
     pub use crate::base_metal::BaseMetal;

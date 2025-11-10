@@ -1,6 +1,5 @@
 //! # Alloy Types
 //! This module contains the [AlloyType] trait which is used to give shared functionality to the alloy types also located in this module's child modules.
-
 use super::*;
 
 pub trait AlloyType: private::AlloyType {
@@ -102,8 +101,8 @@ pub trait AlloyType: private::AlloyType {
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let alloy = Alloy::<TinBronze>::default();
-    /// let nuggets = alloy.constituents().nuggets();
+    /// let alloy = AlloyData::<TinBronze>::default();
+    /// let nuggets = alloy.nuggets();
     ///
     /// assert_eq!(&[Copper(18), Tin(2)], nuggets);
     /// ```
@@ -133,7 +132,7 @@ mod private {
     }
 }
 
-/// Enum of the available alloys. If you are trying to generate values for a given alloy, use the [`Alloy`] struct
+/// Enum of the available alloys
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Alloys {
     TinBronze,
@@ -145,6 +144,133 @@ pub enum Alloys {
     SilverSolder,
     Electrum,
     Cupronickel,
+}
+
+impl Alloys {
+    /// Tries to create a new instance of an alloy. Checks if the input values are valid and tries to calculate valid values for the given alloy.
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let percentages = [Copper(0.92), Tin(0.08)];
+    /// let num_ingots = 7;
+    ///
+    /// let alloy = Alloys::TinBronze.try_new(percentages, num_ingots).expect("should be valid");
+    ///
+    /// assert_eq!(&[Copper(128), Tin(12)], alloy.nuggets());
+    /// ```
+    pub fn try_new(
+        &self,
+        percentages: impl AsRef<[BaseMetal<f32>]>,
+        num_ingots: i32,
+    ) -> Result<Alloy, AlloyError> {
+        Ok(match self {
+            Alloys::TinBronze => {
+                Alloy::TinBronze(AlloyData::<TinBronze>::try_new(percentages, num_ingots)?)
+            }
+            Alloys::BismuthBronze => Alloy::BismuthBronze(AlloyData::<BismuthBronze>::try_new(
+                percentages,
+                num_ingots,
+            )?),
+            Alloys::BlackBronze => {
+                Alloy::BlackBronze(AlloyData::<BlackBronze>::try_new(percentages, num_ingots)?)
+            }
+            Alloys::Brass => Alloy::Brass(AlloyData::<Brass>::try_new(percentages, num_ingots)?),
+            Alloys::Molybdochalkos => Alloy::Molybdochalkos(AlloyData::<Molybdochalkos>::try_new(
+                percentages,
+                num_ingots,
+            )?),
+            Alloys::LeadSolder => {
+                Alloy::LeadSolder(AlloyData::<LeadSolder>::try_new(percentages, num_ingots)?)
+            }
+            Alloys::SilverSolder => {
+                Alloy::SilverSolder(AlloyData::<SilverSolder>::try_new(percentages, num_ingots)?)
+            }
+            Alloys::Electrum => {
+                Alloy::Electrum(AlloyData::<Electrum>::try_new(percentages, num_ingots)?)
+            }
+            Alloys::Cupronickel => {
+                Alloy::Cupronickel(AlloyData::<Cupronickel>::try_new(percentages, num_ingots)?)
+            }
+        })
+    }
+
+    pub fn get_default(&self) -> Alloy {
+        match self {
+            Alloys::TinBronze => Alloy::TinBronze(AlloyData::<TinBronze>::default()),
+            Alloys::BismuthBronze => Alloy::BismuthBronze(AlloyData::<BismuthBronze>::default()),
+            Alloys::BlackBronze => Alloy::BlackBronze(AlloyData::<BlackBronze>::default()),
+            Alloys::Brass => Alloy::Brass(AlloyData::<Brass>::default()),
+            Alloys::Molybdochalkos => Alloy::Molybdochalkos(AlloyData::<Molybdochalkos>::default()),
+            Alloys::LeadSolder => Alloy::LeadSolder(AlloyData::<LeadSolder>::default()),
+            Alloys::SilverSolder => Alloy::SilverSolder(AlloyData::<SilverSolder>::default()),
+            Alloys::Electrum => Alloy::Electrum(AlloyData::<Electrum>::default()),
+            Alloys::Cupronickel => Alloy::Cupronickel(AlloyData::<Cupronickel>::default()),
+        }
+    }
+
+    pub fn name(&self) -> &'static str {
+        use private::AlloyType;
+        match self {
+            Alloys::TinBronze => TinBronze::NAME,
+            Alloys::BismuthBronze => BismuthBronze::NAME,
+            Alloys::BlackBronze => BlackBronze::NAME,
+            Alloys::Brass => Brass::NAME,
+            Alloys::Molybdochalkos => Molybdochalkos::NAME,
+            Alloys::LeadSolder => LeadSolder::NAME,
+            Alloys::SilverSolder => SilverSolder::NAME,
+            Alloys::Electrum => Electrum::NAME,
+            Alloys::Cupronickel => Cupronickel::NAME,
+        }
+    }
+
+    pub fn percentage_ranges(&self) -> &'static [BaseMetal<Range>] {
+        use private::AlloyType;
+        match self {
+            Alloys::TinBronze => TinBronze::RANGES,
+            Alloys::BismuthBronze => BismuthBronze::RANGES,
+            Alloys::BlackBronze => BlackBronze::RANGES,
+            Alloys::Brass => Brass::RANGES,
+            Alloys::Molybdochalkos => Molybdochalkos::RANGES,
+            Alloys::LeadSolder => LeadSolder::RANGES,
+            Alloys::SilverSolder => SilverSolder::RANGES,
+            Alloys::Electrum => Electrum::RANGES,
+            Alloys::Cupronickel => Cupronickel::RANGES,
+        }
+    }
+}
+
+impl<T: AlloyType> From<&AlloyData<T>> for Alloys {
+    fn from(_: &AlloyData<T>) -> Self {
+        use private::AlloyType;
+        match T::NAME {
+            TinBronze::NAME => Self::TinBronze,
+            BismuthBronze::NAME => Self::BismuthBronze,
+            BlackBronze::NAME => Self::BlackBronze,
+            Brass::NAME => Self::Brass,
+            Molybdochalkos::NAME => Self::Molybdochalkos,
+            LeadSolder::NAME => Self::LeadSolder,
+            SilverSolder::NAME => Self::SilverSolder,
+            Electrum::NAME => Self::Electrum,
+            _ => Self::Cupronickel,
+        }
+    }
+}
+impl<T: AlloyType> From<&T> for Alloys {
+    fn from(_: &T) -> Self {
+        use private::AlloyType;
+        match T::NAME {
+            TinBronze::NAME => Self::TinBronze,
+            BismuthBronze::NAME => Self::BismuthBronze,
+            BlackBronze::NAME => Self::BlackBronze,
+            Brass::NAME => Self::Brass,
+            Molybdochalkos::NAME => Self::Molybdochalkos,
+            LeadSolder::NAME => Self::LeadSolder,
+            SilverSolder::NAME => Self::SilverSolder,
+            Electrum::NAME => Self::Electrum,
+            _ => Self::Cupronickel,
+        }
+    }
 }
 
 // Modules

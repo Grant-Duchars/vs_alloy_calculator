@@ -1,9 +1,23 @@
 use super::*;
+use alloy_types::*;
 pub mod alloy_types;
+
+/// Unified alloy enum
+pub enum Alloy {
+    TinBronze(AlloyData<TinBronze>),
+    BismuthBronze(AlloyData<BismuthBronze>),
+    BlackBronze(AlloyData<BlackBronze>),
+    Brass(AlloyData<Brass>),
+    Molybdochalkos(AlloyData<Molybdochalkos>),
+    LeadSolder(AlloyData<LeadSolder>),
+    SilverSolder(AlloyData<SilverSolder>),
+    Electrum(AlloyData<Electrum>),
+    Cupronickel(AlloyData<Cupronickel>),
+}
 
 /// Struct for modeling all of the alloys in Vintage Story
 #[derive(PartialEq, PartialOrd, Debug)]
-pub struct Alloy<T: AlloyType> {
+pub struct AlloyData<T: AlloyType> {
     /// Also stores number of nuggets of each constituent
     alloy_type: T,
     percentages: Box<[BaseMetal<f32>]>,
@@ -11,7 +25,7 @@ pub struct Alloy<T: AlloyType> {
     max_ingots: i32,
 }
 
-impl<T: AlloyType> Alloy<T> {
+impl<T: AlloyType> AlloyData<T> {
     /// Tries to create a new instance of an alloy. Checks if the input values are valid and tries to calculate valid values for the given alloy.
     /// ### Example
     /// ```rust
@@ -20,9 +34,9 @@ impl<T: AlloyType> Alloy<T> {
     /// let percentages = [Copper(0.92), Tin(0.08)];
     /// let num_ingots = 7;
     ///
-    /// let alloy = Alloy::<TinBronze>::try_new(percentages, num_ingots).expect("should be valid");
+    /// let alloy = AlloyData::<TinBronze>::try_new(percentages, num_ingots).expect("should be valid");
     ///
-    /// assert_eq!(&[Copper(128), Tin(12)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(128), Tin(12)], alloy.nuggets());
     /// ```
     pub fn try_new(
         percentages: impl AsRef<[BaseMetal<f32>]>,
@@ -30,7 +44,7 @@ impl<T: AlloyType> Alloy<T> {
     ) -> Result<Self, AlloyError> {
         if num_ingots > unit_constants::MAX_POSSIBLE_INGOTS {
             Err(TooManyIngots)
-        } else if num_ingots == 0 {
+        } else if num_ingots <= 0 {
             Err(TooFewIngots)
         } else {
             match T::check_valid_percentages(&percentages) {
@@ -49,20 +63,18 @@ impl<T: AlloyType> Alloy<T> {
         }
     }
 
-    /// Gets the underlying alloy type which holds the current constituent nugget amounts. \
-    /// To get at the actual amounts, `.nuggets()` must be called in addition.
+    /// Gets the number of nuggets of each constituent needed to create the current number of ingots with the current constituent ratios
     /// ### Example
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let alloy = Alloy::<TinBronze>::default();
-    /// let alloy_type = alloy.constituents();
-    /// let nuggets = alloy_type.nuggets();
+    /// let alloy = AlloyData::<TinBronze>::default();
+    /// let nuggets = alloy.nuggets();
     ///
     /// assert_eq!(&[Copper(18), Tin(2)], nuggets);
     /// ```
-    pub fn constituents(&self) -> &T {
-        &self.alloy_type
+    pub fn nuggets(&self) -> &[BaseMetal<i32>] {
+        self.alloy_type.nuggets()
     }
 
     /// Gets the number of ingots that are able to be created with the current constituent amounts
@@ -70,7 +82,7 @@ impl<T: AlloyType> Alloy<T> {
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let alloy = Alloy::<TinBronze>::default();
+    /// let alloy = AlloyData::<TinBronze>::default();
     /// let num_ingots = alloy.num_ingots();
     ///
     /// assert_eq!(1, num_ingots);
@@ -79,12 +91,12 @@ impl<T: AlloyType> Alloy<T> {
         self.num_ingots
     }
 
-    /// Gets the maximum number of ingots possible with the current percentages of the alloy
+    /// Gets the maximum number of ingots possible with the current constituent percentages
     /// ### Example
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let alloy = Alloy::<TinBronze>::default();
+    /// let alloy = AlloyData::<TinBronze>::default();
     /// let max_ingots = alloy.max_ingots();
     ///
     /// assert_eq!(20, max_ingots);
@@ -93,12 +105,12 @@ impl<T: AlloyType> Alloy<T> {
         self.max_ingots
     }
 
-    /// Gets the percentages of base metals of the alloy
+    /// Gets the percentages of the constituents of the alloy
     /// ### Example
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let alloy = Alloy::<TinBronze>::default();
+    /// let alloy = AlloyData::<TinBronze>::default();
     /// let percentages = alloy.percentages();
     ///
     /// assert_eq!(&[Copper(0.92), Tin(0.08)], percentages);
@@ -107,13 +119,13 @@ impl<T: AlloyType> Alloy<T> {
         &self.percentages
     }
 
-    /// Gets the ranges of percentages of base metals for the given alloy
+    /// Gets the ranges of percentages of the constituents for the given alloy
     /// ### Example
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     /// use vs_alloy_calculator::ConstituentRange;
     ///
-    /// let ranges = Alloy::<TinBronze>::percentage_ranges();
+    /// let ranges = AlloyData::<TinBronze>::percentage_ranges();
     ///
     /// assert_eq!(&[Copper(ConstituentRange::new(0.88, 0.92)), Tin(ConstituentRange::new(0.08, 0.12))], ranges);
     /// ```
@@ -126,23 +138,23 @@ impl<T: AlloyType> Alloy<T> {
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let mut alloy = Alloy::<TinBronze>::default();
+    /// let mut alloy = AlloyData::<TinBronze>::default();
     /// assert_eq!(1, alloy.num_ingots());
-    /// assert_eq!(&[Copper(18), Tin(2)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     ///
     /// // Updating the number of ingots also calculates and updates other values too
     /// alloy.set_num_ingots(5).expect("should be valid");
     /// assert_eq!(5, alloy.num_ingots());
-    /// assert_eq!(&[Copper(92), Tin(8)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(92), Tin(8)], alloy.nuggets());
     ///
     /// // Returns an error and does not update any values if the number of ingots is too high or too low
     /// alloy.set_num_ingots(100).expect_err("should be too many ingots");
     /// alloy.set_num_ingots(0).expect_err("should be too few ingots");
     /// assert_eq!(5, alloy.num_ingots()); // Values were not updated
-    /// assert_eq!(&[Copper(92), Tin(8)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(92), Tin(8)], alloy.nuggets());
     /// ```
     pub fn set_num_ingots(&mut self, num_ingots: i32) -> Result<(), AlloyError> {
-        if num_ingots == 0 {
+        if num_ingots <= 0 {
             Err(TooFewIngots)
         } else if self.max_ingots < num_ingots {
             Err(TooManyIngots)
@@ -157,22 +169,22 @@ impl<T: AlloyType> Alloy<T> {
     /// ```rust
     /// use vs_alloy_calculator::prelude::*;
     ///
-    /// let mut alloy = Alloy::<TinBronze>::default();
+    /// let mut alloy = AlloyData::<TinBronze>::default();
     /// assert_eq!(&[Copper(0.92), Tin(0.08)], alloy.percentages());
-    /// assert_eq!(&[Copper(18), Tin(2)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     /// assert_eq!(20, alloy.max_ingots());
     ///
     /// // Updating the percentages also calculates and updates other values too
     /// alloy.set_percentages([Copper(0.88), Tin(0.12)]).expect("should be valid");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages());
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
     /// assert_eq!(21, alloy.max_ingots());
     ///
     /// // Returns an error and does not update any values if the percentages are invalid for the alloy
     /// alloy.set_percentages([Copper(0.12), Tin(0.88)]).expect_err("should be invalid ranges");
     /// alloy.set_percentages([Lead(0.92), Copper(0.08)]).expect_err("should be invalid base metals");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages()); // Values were not updated
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.constituents().nuggets());
+    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
     /// ```
     pub fn set_percentages(
         &mut self,
@@ -195,7 +207,7 @@ impl<T: AlloyType> Alloy<T> {
     ///
     /// let percentages = [Tin(0.08), Copper(0.92)];
     /// assert!(
-    ///     Alloy::<TinBronze>::check_valid_percentages(percentages)
+    ///     AlloyData::<TinBronze>::check_valid_percentages(percentages)
     ///         .is_ok_and(|p| p == Box::from([Copper(0.92), Tin(0.08)]))
     /// );
     /// ```
@@ -298,6 +310,178 @@ impl<T: AlloyType> Alloy<T> {
             Self::calculate_max_ingots(percentages, cur_ingot_num - 1)
         } else {
             cur_ingot_num
+        }
+    }
+}
+
+impl Alloy {
+    /// Gets the number of nuggets of each constituent needed to create the current number of ingots with the current constituent ratios
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let alloy = Alloys::TinBronze.get_default();
+    /// let nuggets = alloy.nuggets();
+    ///
+    /// assert_eq!(&[Copper(18), Tin(2)], nuggets);
+    /// ```
+    pub fn nuggets(&self) -> &[BaseMetal<i32>] {
+        match self {
+            Alloy::TinBronze(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::BismuthBronze(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::BlackBronze(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::Brass(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::Molybdochalkos(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::LeadSolder(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::SilverSolder(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::Electrum(alloy_data) => alloy_data.alloy_type.nuggets(),
+            Alloy::Cupronickel(alloy_data) => alloy_data.alloy_type.nuggets(),
+        }
+    }
+
+    /// Gets the number of ingots that are able to be created with the current constituent amounts
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let alloy = Alloys::TinBronze.get_default();
+    /// let num_ingots = alloy.num_ingots();
+    ///
+    /// assert_eq!(1, num_ingots);
+    /// ```
+    pub fn num_ingots(&self) -> i32 {
+        match self {
+            Alloy::TinBronze(alloy_data) => alloy_data.num_ingots,
+            Alloy::BismuthBronze(alloy_data) => alloy_data.num_ingots,
+            Alloy::BlackBronze(alloy_data) => alloy_data.num_ingots,
+            Alloy::Brass(alloy_data) => alloy_data.num_ingots,
+            Alloy::Molybdochalkos(alloy_data) => alloy_data.num_ingots,
+            Alloy::LeadSolder(alloy_data) => alloy_data.num_ingots,
+            Alloy::SilverSolder(alloy_data) => alloy_data.num_ingots,
+            Alloy::Electrum(alloy_data) => alloy_data.num_ingots,
+            Alloy::Cupronickel(alloy_data) => alloy_data.num_ingots,
+        }
+    }
+
+    /// Gets the maximum number of ingots possible with the current constituent percentages
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let alloy = Alloys::TinBronze.get_default();
+    /// let max_ingots = alloy.max_ingots();
+    ///
+    /// assert_eq!(20, max_ingots);
+    /// ```
+    pub fn max_ingots(&self) -> i32 {
+        match self {
+            Alloy::TinBronze(alloy_data) => alloy_data.max_ingots,
+            Alloy::BismuthBronze(alloy_data) => alloy_data.max_ingots,
+            Alloy::BlackBronze(alloy_data) => alloy_data.max_ingots,
+            Alloy::Brass(alloy_data) => alloy_data.max_ingots,
+            Alloy::Molybdochalkos(alloy_data) => alloy_data.max_ingots,
+            Alloy::LeadSolder(alloy_data) => alloy_data.max_ingots,
+            Alloy::SilverSolder(alloy_data) => alloy_data.max_ingots,
+            Alloy::Electrum(alloy_data) => alloy_data.max_ingots,
+            Alloy::Cupronickel(alloy_data) => alloy_data.max_ingots,
+        }
+    }
+
+    /// Gets the percentages of the constituents of the alloy
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let alloy = Alloys::TinBronze.get_default();
+    /// let percentages = alloy.percentages();
+    ///
+    /// assert_eq!(&[Copper(0.92), Tin(0.08)], percentages);
+    /// ```
+    pub fn percentages(&self) -> &[BaseMetal<f32>] {
+        match self {
+            Alloy::TinBronze(alloy_data) => &alloy_data.percentages,
+            Alloy::BismuthBronze(alloy_data) => &alloy_data.percentages,
+            Alloy::BlackBronze(alloy_data) => &alloy_data.percentages,
+            Alloy::Brass(alloy_data) => &alloy_data.percentages,
+            Alloy::Molybdochalkos(alloy_data) => &alloy_data.percentages,
+            Alloy::LeadSolder(alloy_data) => &alloy_data.percentages,
+            Alloy::SilverSolder(alloy_data) => &alloy_data.percentages,
+            Alloy::Electrum(alloy_data) => &alloy_data.percentages,
+            Alloy::Cupronickel(alloy_data) => &alloy_data.percentages,
+        }
+    }
+
+    /// Tries to update the number of ingots for the alloy. In addition, updates other values if successful.
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let mut alloy = Alloys::TinBronze.get_default();
+    /// assert_eq!(1, alloy.num_ingots());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
+    ///
+    /// // Updating the number of ingots also calculates and updates other values too
+    /// alloy.set_num_ingots(5).expect("should be valid");
+    /// assert_eq!(5, alloy.num_ingots());
+    /// assert_eq!(&[Copper(92), Tin(8)], alloy.nuggets());
+    ///
+    /// // Returns an error and does not update any values if the number of ingots is too high or too low
+    /// alloy.set_num_ingots(100).expect_err("should be too many ingots");
+    /// alloy.set_num_ingots(0).expect_err("should be too few ingots");
+    /// assert_eq!(5, alloy.num_ingots()); // Values were not updated
+    /// assert_eq!(&[Copper(92), Tin(8)], alloy.nuggets());
+    /// ```
+    pub fn set_num_ingots(&mut self, num_ingots: i32) -> Result<(), AlloyError> {
+        match self {
+            Alloy::TinBronze(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::BismuthBronze(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::BlackBronze(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::Brass(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::Molybdochalkos(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::LeadSolder(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::SilverSolder(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::Electrum(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+            Alloy::Cupronickel(alloy_data) => alloy_data.set_num_ingots(num_ingots),
+        }
+    }
+
+    /// Tries to update the percentages for the alloy. In addition, updates other values if successful.
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let mut alloy = Alloys::TinBronze.get_default();
+    /// assert_eq!(&[Copper(0.92), Tin(0.08)], alloy.percentages());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
+    /// assert_eq!(20, alloy.max_ingots());
+    ///
+    /// // Updating the percentages also calculates and updates other values too
+    /// alloy.set_percentages([Copper(0.88), Tin(0.12)]).expect("should be valid");
+    /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages());
+    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(21, alloy.max_ingots());
+    ///
+    /// // Returns an error and does not update any values if the percentages are invalid for the alloy
+    /// alloy.set_percentages([Copper(0.12), Tin(0.88)]).expect_err("should be invalid ranges");
+    /// alloy.set_percentages([Lead(0.92), Copper(0.08)]).expect_err("should be invalid base metals");
+    /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages()); // Values were not updated
+    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(21, alloy.max_ingots());
+    /// ```
+    pub fn set_percentages(
+        &mut self,
+        percentages: impl AsRef<[BaseMetal<f32>]>,
+    ) -> Result<(), AlloyError> {
+        match self {
+            Alloy::TinBronze(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::BismuthBronze(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::BlackBronze(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::Brass(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::Molybdochalkos(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::LeadSolder(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::SilverSolder(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::Electrum(alloy_data) => alloy_data.set_percentages(percentages),
+            Alloy::Cupronickel(alloy_data) => alloy_data.set_percentages(percentages),
         }
     }
 }

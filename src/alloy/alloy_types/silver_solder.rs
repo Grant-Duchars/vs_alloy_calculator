@@ -9,7 +9,7 @@ impl Default for SilverSolder {
     }
 }
 
-impl Default for Alloy<SilverSolder> {
+impl Default for AlloyData<SilverSolder> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

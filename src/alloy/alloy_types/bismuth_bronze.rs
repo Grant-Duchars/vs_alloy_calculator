@@ -9,7 +9,7 @@ impl Default for BismuthBronze {
     }
 }
 
-impl Default for Alloy<BismuthBronze> {
+impl Default for AlloyData<BismuthBronze> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

@@ -9,7 +9,7 @@ impl Default for Cupronickel {
     }
 }
 
-impl Default for Alloy<Cupronickel> {
+impl Default for AlloyData<Cupronickel> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

@@ -9,7 +9,7 @@ impl Default for Electrum {
     }
 }
 
-impl Default for Alloy<Electrum> {
+impl Default for AlloyData<Electrum> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

@@ -9,7 +9,7 @@ impl Default for Molybdochalkos {
     }
 }
 
-impl Default for Alloy<Molybdochalkos> {
+impl Default for AlloyData<Molybdochalkos> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

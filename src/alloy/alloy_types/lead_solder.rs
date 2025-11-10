@@ -9,7 +9,7 @@ impl Default for LeadSolder {
     }
 }
 
-impl Default for Alloy<LeadSolder> {
+impl Default for AlloyData<LeadSolder> {
     fn default() -> Self {
         Self {
             alloy_type: Default::default(),

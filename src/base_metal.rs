@@ -68,6 +68,30 @@ impl<T: Copy> BaseMetal<T> {
             Bismuth(_) => *self = Bismuth(value),
         }
     }
+
+    /// Creates a new instance of the same base metal but with a new inner value and/or type
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let copper: BaseMetal<i32> = Copper(5);
+    /// assert_eq!(5, *copper);
+    ///
+    /// let copper: BaseMetal<f64> = copper.update_inner_value(10.0);
+    /// assert_eq!(10.0, *copper);
+    /// ```
+    pub fn update_inner_value<U: Copy>(&self, value: U) -> BaseMetal<U> {
+        match self {
+            Nickel(_) => Nickel(value),
+            Copper(_) => Copper(value),
+            Zinc(_) => Zinc(value),
+            Silver(_) => Silver(value),
+            Tin(_) => Tin(value),
+            Gold(_) => Gold(value),
+            Lead(_) => Lead(value),
+            Bismuth(_) => Bismuth(value),
+        }
+    }
 }
 
 impl<T: Copy> std::ops::Deref for BaseMetal<T> {

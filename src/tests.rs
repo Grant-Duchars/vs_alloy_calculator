@@ -31,8 +31,8 @@ mod tin_bronze_tests {
     fn test_one_ingot_min_copper() {
         let alloy = AlloyData::<TinBronze>::try_new(MIN_COPPER, 1).unwrap();
         let nuggets = alloy.nuggets();
-        assert_eq!(Copper(17), nuggets[0]);
-        assert_eq!(Tin(3), nuggets[1]);
+        assert_eq!(Copper(18), nuggets[0]);
+        assert_eq!(Tin(2), nuggets[1]);
     }
 
     #[test]
@@ -138,5 +138,49 @@ mod bismuth_bronze_tests {
         assert_eq!(Copper(100), nuggets[0]);
         assert_eq!(Zinc(60), nuggets[1]);
         assert_eq!(Bismuth(40), nuggets[2]);
+    }
+
+    #[test]
+    fn test_one_ingot_60_21_19() {
+        let alloy =
+            AlloyData::<BismuthBronze>::try_new([Copper(0.6), Zinc(0.21), Bismuth(0.19)], 1)
+                .unwrap();
+        let nuggets = alloy.nuggets();
+        assert_eq!(Copper(12), nuggets[0]);
+        assert_eq!(Zinc(4), nuggets[1]);
+        assert_eq!(Bismuth(4), nuggets[2]);
+    }
+
+    #[test]
+    fn test_one_ingot_59_22_19() {
+        let alloy =
+            AlloyData::<BismuthBronze>::try_new([Copper(0.59), Zinc(0.22), Bismuth(0.19)], 1)
+                .unwrap();
+        let nuggets = alloy.nuggets();
+        assert_eq!(Copper(11), nuggets[0]);
+        assert_eq!(Zinc(5), nuggets[1]);
+        assert_eq!(Bismuth(4), nuggets[2]);
+    }
+
+    #[test]
+    fn test_one_ingot_53_27_20() {
+        let alloy =
+            AlloyData::<BismuthBronze>::try_new([Copper(0.53), Zinc(0.27), Bismuth(0.20)], 1)
+                .unwrap();
+        let nuggets = alloy.nuggets();
+        assert_eq!(Copper(10), nuggets[0]);
+        assert_eq!(Zinc(6), nuggets[1]);
+        assert_eq!(Bismuth(4), nuggets[2]);
+    }
+
+    #[test]
+    fn test_one_ingot_52_28_20() {
+        let alloy =
+            AlloyData::<BismuthBronze>::try_new([Copper(0.52), Zinc(0.28), Bismuth(0.20)], 1)
+                .unwrap();
+        let nuggets = alloy.nuggets();
+        assert_eq!(Copper(10), nuggets[0]);
+        assert_eq!(Zinc(6), nuggets[1]);
+        assert_eq!(Bismuth(4), nuggets[2]);
     }
 }

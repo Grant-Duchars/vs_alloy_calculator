@@ -177,14 +177,14 @@ impl<T: AlloyType> AlloyData<T> {
     /// // Updating the percentages also calculates and updates other values too
     /// alloy.set_percentages([Copper(0.88), Tin(0.12)]).expect("should be valid");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages());
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     /// assert_eq!(21, alloy.max_ingots());
     ///
     /// // Returns an error and does not update any values if the percentages are invalid for the alloy
     /// alloy.set_percentages([Copper(0.12), Tin(0.88)]).expect_err("should be invalid ranges");
     /// alloy.set_percentages([Lead(0.92), Copper(0.08)]).expect_err("should be invalid base metals");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages()); // Values were not updated
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     /// ```
     pub fn set_percentages(
         &mut self,
@@ -256,11 +256,11 @@ impl<T: AlloyType> AlloyData<T> {
         use unit_constants::*;
 
         // Constituent Amounts
-        let needed_units_c = num_ingots as f32 * INGOT_UNIT_AMOUNT as f32;
+        let needed_units_c = (num_ingots * INGOT_UNIT_AMOUNT) as f32;
         let mut remaining_units_c = needed_units_c;
         let mut constituent_amounts = Vec::new();
         // Max Ingots
-        let needed_units_mi = MAX_POSSIBLE_INGOTS as f32 * INGOT_UNIT_AMOUNT as f32;
+        let needed_units_mi = (MAX_POSSIBLE_INGOTS * INGOT_UNIT_AMOUNT) as f32;
         let mut remaining_units_mi = needed_units_mi;
 
         let len = percentages.len();
@@ -292,6 +292,8 @@ impl<T: AlloyType> AlloyData<T> {
             return Err(TooManyIngots);
         }
 
+        Self::check_constituent_amounts(&mut constituent_amounts, num_ingots);
+
         Ok((T::try_from_vec(constituent_amounts)?, max_ingots))
     }
 
@@ -310,6 +312,55 @@ impl<T: AlloyType> AlloyData<T> {
             Self::calculate_max_ingots(percentages, cur_ingot_num - 1)
         } else {
             cur_ingot_num
+        }
+    }
+
+    fn check_constituent_amounts(amounts: &mut Vec<i32>, num_ingots: i32) {
+        use unit_constants::*;
+
+        let two_constituents = amounts.len() == 2;
+        let invalid_sum = amounts.iter().sum::<i32>() != NUM_NUGGETS_PER_INGOT * num_ingots;
+
+        let (a, amounts) = amounts.split_at_mut(1);
+        let a = &mut a[0];
+        let (b, c) = amounts.split_at_mut(1);
+        let b = &mut b[0];
+
+        let ranges = Self::percentage_ranges();
+        let max_b = (ranges[1].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f32).floor() as i32;
+
+        if two_constituents {
+            if invalid_sum {
+                if *b < max_b {
+                    *b += 1;
+                } else {
+                    *a += 1;
+                }
+            } else if *b > max_b {
+                *b -= 1;
+                *a += 1;
+            }
+        } else {
+            let c = &mut c[0];
+            let max_c =
+                (ranges[2].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f32).floor() as i32;
+
+            if invalid_sum {
+                if *c < max_c {
+                    *c += 1;
+                } else if *b < max_b {
+                    *b += 1;
+                } else {
+                    *a += 1;
+                }
+            } else if *c > max_c {
+                *c -= 1;
+                if *b + 1 > max_b {
+                    *a += 1;
+                } else {
+                    *b += 1;
+                }
+            }
         }
     }
 }
@@ -458,14 +509,14 @@ impl Alloy {
     /// // Updating the percentages also calculates and updates other values too
     /// alloy.set_percentages([Copper(0.88), Tin(0.12)]).expect("should be valid");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages());
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     /// assert_eq!(21, alloy.max_ingots());
     ///
     /// // Returns an error and does not update any values if the percentages are invalid for the alloy
     /// alloy.set_percentages([Copper(0.12), Tin(0.88)]).expect_err("should be invalid ranges");
     /// alloy.set_percentages([Lead(0.92), Copper(0.08)]).expect_err("should be invalid base metals");
     /// assert_eq!(&[Copper(0.88), Tin(0.12)], alloy.percentages()); // Values were not updated
-    /// assert_eq!(&[Copper(17), Tin(3)], alloy.nuggets());
+    /// assert_eq!(&[Copper(18), Tin(2)], alloy.nuggets());
     /// assert_eq!(21, alloy.max_ingots());
     /// ```
     pub fn set_percentages(

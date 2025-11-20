@@ -56,6 +56,7 @@ pub mod unit_constants {
     pub const INGOT_UNIT_AMOUNT: i32 = 100;
     pub const MAX_STACK_SIZE: i32 = 128;
     pub const CRUCIBLE_SLOTS: i32 = 4;
+    pub const NUM_NUGGETS_PER_INGOT: i32 = INGOT_UNIT_AMOUNT / NUGGET_UNIT_AMOUNT; // 20
     pub const MAX_POSSIBLE_INGOTS: i32 =
         MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT * CRUCIBLE_SLOTS / INGOT_UNIT_AMOUNT; // 25
     pub const MAX_UNITS_PER_SLOT: i32 = MAX_STACK_SIZE * NUGGET_UNIT_AMOUNT; // 640

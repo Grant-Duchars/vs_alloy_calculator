@@ -36,16 +36,20 @@ mod tests;
 // Re-exports
 pub use alloy::Alloy;
 pub use alloy::AlloyData;
+pub use alloy::alloy_names;
 pub use alloy::alloy_types;
 pub use alloy::alloy_types::AlloyType;
 pub use base_metal::BaseMetal;
+pub use base_metal::base_metal_names;
 pub mod prelude {
     pub use crate::alloy::Alloy;
     pub use crate::alloy::AlloyData;
+    pub use crate::alloy::alloy_names;
     // Gives AlloyType and all of the types of alloys as standalone types and as an enum
     pub use crate::alloy::alloy_types::*;
     pub use crate::base_metal::BaseMetal;
     pub use crate::base_metal::BaseMetal::*;
+    pub use crate::base_metal::base_metal_names;
 }
 // Imports
 use AlloyError::*;

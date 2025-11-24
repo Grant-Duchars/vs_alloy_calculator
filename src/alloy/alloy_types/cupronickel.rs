@@ -26,7 +26,7 @@ impl AlloyType for Cupronickel {
     }
 }
 impl private::AlloyType for Cupronickel {
-    const NAME: &str = "Cupronickel";
+    const NAME: &str = alloy_names::CUPRONICKEL;
     const RANGES: &[BaseMetal<Range>] = &[
         Copper(Range::new(0.65, 0.75)),
         Nickel(Range::new(0.25, 0.35)),

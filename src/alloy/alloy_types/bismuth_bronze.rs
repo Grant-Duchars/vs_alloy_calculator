@@ -27,7 +27,7 @@ impl AlloyType for BismuthBronze {
 }
 
 impl private::AlloyType for BismuthBronze {
-    const NAME: &str = "Bismuth Bronze";
+    const NAME: &str = alloy_names::BISMUTH_BRONZE;
     const RANGES: &[BaseMetal<Range>] = &[
         Copper(Range::new(0.50, 0.70)),
         Zinc(Range::new(0.20, 0.30)),

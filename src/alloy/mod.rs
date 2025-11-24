@@ -2,6 +2,18 @@ use super::*;
 use alloy_types::*;
 pub mod alloy_types;
 
+pub mod alloy_names {
+    pub const TIN_BRONZE: &str = "Tin Bronze";
+    pub const BISMUTH_BRONZE: &str = "Bismuth Bronze";
+    pub const BLACK_BRONZE: &str = "Black Bronze";
+    pub const BRASS: &str = "Brass";
+    pub const MOLYBDOCHALKOS: &str = "Molybdochalkos";
+    pub const LEAD_SOLDER: &str = "Lead Solder";
+    pub const SILVER_SOLDER: &str = "Silver Solder";
+    pub const ELECTRUM: &str = "Electrum";
+    pub const CUPRONICKEL: &str = "Cupronickel";
+}
+
 /// Unified alloy enum
 pub enum Alloy {
     TinBronze(AlloyData<TinBronze>),

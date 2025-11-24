@@ -27,7 +27,7 @@ impl AlloyType for LeadSolder {
 }
 
 impl private::AlloyType for LeadSolder {
-    const NAME: &str = "Lead Solder";
+    const NAME: &str = alloy_names::LEAD_SOLDER;
     const RANGES: &[BaseMetal<Range>] =
         &[Tin(Range::new(0.45, 0.55)), Lead(Range::new(0.45, 0.55))];
 

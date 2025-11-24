@@ -1,11 +1,13 @@
-const NICKEL: &str = "Nickel";
-const COPPER: &str = "Copper";
-const ZINC: &str = "Zinc";
-const SILVER: &str = "Silver";
-const TIN: &str = "Tin";
-const GOLD: &str = "Gold";
-const LEAD: &str = "Lead";
-const BISMUTH: &str = "Bismuth";
+pub mod base_metal_names {
+    pub const NICKEL: &str = "Nickel";
+    pub const COPPER: &str = "Copper";
+    pub const ZINC: &str = "Zinc";
+    pub const SILVER: &str = "Silver";
+    pub const TIN: &str = "Tin";
+    pub const GOLD: &str = "Gold";
+    pub const LEAD: &str = "Lead";
+    pub const BISMUTH: &str = "Bismuth";
+}
 
 /// Enum for modeling different values of base metals used to create an [`Alloy`](crate::Alloy)
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -33,6 +35,7 @@ impl<T: Copy> BaseMetal<T> {
     /// assert_eq!("Copper", name);
     /// ```
     pub fn name(&self) -> &str {
+        use base_metal_names::*;
         match self {
             Nickel(_) => NICKEL,
             Copper(_) => COPPER,

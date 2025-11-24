@@ -27,7 +27,7 @@ impl AlloyType for Molybdochalkos {
 }
 
 impl private::AlloyType for Molybdochalkos {
-    const NAME: &str = "Molybdochalkos";
+    const NAME: &str = alloy_names::MOLYBDOCHALKOS;
     const RANGES: &[BaseMetal<Range>] =
         &[Lead(Range::new(0.88, 0.92)), Copper(Range::new(0.08, 0.12))];
 

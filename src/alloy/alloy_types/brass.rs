@@ -27,7 +27,7 @@ impl AlloyType for Brass {
 }
 
 impl private::AlloyType for Brass {
-    const NAME: &str = "Brass";
+    const NAME: &str = alloy_names::BRASS;
     const RANGES: &[BaseMetal<Range>] =
         &[Copper(Range::new(0.60, 0.70)), Zinc(Range::new(0.30, 0.40))];
 

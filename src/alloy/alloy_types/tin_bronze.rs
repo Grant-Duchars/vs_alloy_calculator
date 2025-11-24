@@ -27,7 +27,7 @@ impl AlloyType for TinBronze {
 }
 
 impl private::AlloyType for TinBronze {
-    const NAME: &str = "Tin Bronze";
+    const NAME: &str = alloy_names::TIN_BRONZE;
     const RANGES: &[BaseMetal<Range>] =
         &[Copper(Range::new(0.88, 0.92)), Tin(Range::new(0.08, 0.12))];
 

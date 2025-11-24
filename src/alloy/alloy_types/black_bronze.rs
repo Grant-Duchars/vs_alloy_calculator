@@ -27,7 +27,7 @@ impl AlloyType for BlackBronze {
 }
 
 impl private::AlloyType for BlackBronze {
-    const NAME: &str = "Black Bronze";
+    const NAME: &str = alloy_names::BLACK_BRONZE;
     const RANGES: &[BaseMetal<Range>] = &[
         Copper(Range::new(0.68, 0.84)),
         Gold(Range::new(0.08, 0.16)),

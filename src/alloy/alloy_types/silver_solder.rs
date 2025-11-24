@@ -27,7 +27,7 @@ impl AlloyType for SilverSolder {
 }
 
 impl super::private::AlloyType for SilverSolder {
-    const NAME: &str = "Silver Solder";
+    const NAME: &str = alloy_names::SILVER_SOLDER;
     const RANGES: &[BaseMetal<Range>] =
         &[Tin(Range::new(0.50, 0.60)), Silver(Range::new(0.40, 0.50))];
 

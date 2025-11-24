@@ -27,7 +27,7 @@ impl AlloyType for Electrum {
 }
 
 impl private::AlloyType for Electrum {
-    const NAME: &str = "Electrum";
+    const NAME: &str = alloy_names::ELECTRUM;
     const RANGES: &[BaseMetal<Range>] =
         &[Gold(Range::new(0.40, 0.60)), Silver(Range::new(0.40, 0.60))];
 

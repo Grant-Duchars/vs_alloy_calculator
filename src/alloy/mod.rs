@@ -378,6 +378,31 @@ impl<T: AlloyType> AlloyData<T> {
 }
 
 impl Alloy {
+    /// Returns the name of the alloy as a string
+    /// ### Example
+    /// ```rust
+    /// use vs_alloy_calculator::prelude::*;
+    ///
+    /// let alloy = Alloys::TinBronze.get_default();
+    /// let name = alloy.name();
+    ///
+    /// assert_eq!("Tin Bronze", name);
+    /// ```
+    pub fn name(&self) -> &str {
+        use alloy_names::*;
+        match self {
+            Alloy::TinBronze(_) => TIN_BRONZE,
+            Alloy::BismuthBronze(_) => BISMUTH_BRONZE,
+            Alloy::BlackBronze(_) => BLACK_BRONZE,
+            Alloy::Brass(_) => BRASS,
+            Alloy::Molybdochalkos(_) => MOLYBDOCHALKOS,
+            Alloy::LeadSolder(_) => LEAD_SOLDER,
+            Alloy::SilverSolder(_) => SILVER_SOLDER,
+            Alloy::Electrum(_) => ELECTRUM,
+            Alloy::Cupronickel(_) => CUPRONICKEL,
+        }
+    }
+
     /// Gets the number of nuggets of each constituent needed to create the current number of ingots with the current constituent ratios
     /// ### Example
     /// ```rust

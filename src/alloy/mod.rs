@@ -32,7 +32,7 @@ pub enum Alloy {
 pub struct AlloyData<T: AlloyType> {
     /// Also stores number of nuggets of each constituent
     alloy_type: T,
-    percentages: Box<[BaseMetal<f32>]>,
+    percentages: Box<[BaseMetal<f64>]>,
     num_ingots: i32,
     max_ingots: i32,
 }
@@ -51,7 +51,7 @@ impl<T: AlloyType> AlloyData<T> {
     /// assert_eq!(&[Copper(128), Tin(12)], alloy.nuggets());
     /// ```
     pub fn try_new(
-        percentages: impl AsRef<[BaseMetal<f32>]>,
+        percentages: impl AsRef<[BaseMetal<f64>]>,
         num_ingots: i32,
     ) -> Result<Self, AlloyError> {
         if num_ingots > unit_constants::MAX_POSSIBLE_INGOTS {
@@ -127,7 +127,7 @@ impl<T: AlloyType> AlloyData<T> {
     ///
     /// assert_eq!(&[Copper(0.92), Tin(0.08)], percentages);
     /// ```
-    pub fn percentages(&self) -> &[BaseMetal<f32>] {
+    pub fn percentages(&self) -> &[BaseMetal<f64>] {
         &self.percentages
     }
 
@@ -200,7 +200,7 @@ impl<T: AlloyType> AlloyData<T> {
     /// ```
     pub fn set_percentages(
         &mut self,
-        percentages: impl AsRef<[BaseMetal<f32>]>,
+        percentages: impl AsRef<[BaseMetal<f64>]>,
     ) -> Result<(), AlloyError> {
         match T::check_valid_percentages(&percentages) {
             Ok(p) => {
@@ -224,15 +224,15 @@ impl<T: AlloyType> AlloyData<T> {
     /// );
     /// ```
     pub fn check_valid_percentages(
-        percentages: impl AsRef<[BaseMetal<f32>]>,
-    ) -> Result<Box<[BaseMetal<f32>]>, AlloyError> {
+        percentages: impl AsRef<[BaseMetal<f64>]>,
+    ) -> Result<Box<[BaseMetal<f64>]>, AlloyError> {
         T::check_valid_percentages(percentages)
     }
 
     /// Tries to update the alloy's values. Should pass in either percentage, num_ingots, or both but never neither.
     fn update_values(
         &mut self,
-        percentages: Option<Box<[BaseMetal<f32>]>>,
+        percentages: Option<Box<[BaseMetal<f64>]>>,
         num_ingots: Option<i32>,
     ) -> Result<(), AlloyError> {
         let (alloy_type, max_ingots) = match (percentages, num_ingots) {
@@ -261,18 +261,18 @@ impl<T: AlloyType> AlloyData<T> {
 
     /// Gets updated values using the supplied parameters
     fn get_updated_values(
-        percentages: &[BaseMetal<f32>],
+        percentages: &[BaseMetal<f64>],
         num_ingots: i32,
     ) -> Result<(T, i32), AlloyError> {
         use AlloyError::*;
         use unit_constants::*;
 
         // Constituent Amounts
-        let needed_units_c = (num_ingots * INGOT_UNIT_AMOUNT) as f32;
+        let needed_units_c = (num_ingots * INGOT_UNIT_AMOUNT) as f64;
         let mut remaining_units_c = needed_units_c;
         let mut constituent_amounts = Vec::new();
         // Max Ingots
-        let needed_units_mi = (MAX_POSSIBLE_INGOTS * INGOT_UNIT_AMOUNT) as f32;
+        let needed_units_mi = (MAX_POSSIBLE_INGOTS * INGOT_UNIT_AMOUNT) as f64;
         let mut remaining_units_mi = needed_units_mi;
 
         let len = percentages.len();
@@ -285,12 +285,12 @@ impl<T: AlloyType> AlloyData<T> {
                 constituent_amounts.push(units as i32 / NUGGET_UNIT_AMOUNT);
             } else {
                 constituent_amounts
-                    .push((remaining_units_c / NUGGET_UNIT_AMOUNT as f32).ceil() as i32);
+                    .push((remaining_units_c / NUGGET_UNIT_AMOUNT as f64).ceil() as i32);
             }
             // Max Ingots
             let units = needed_units_mi * p;
             remaining_units_mi -= units;
-            acc + (units / MAX_UNITS_PER_SLOT as f32).ceil()
+            acc + (units / MAX_UNITS_PER_SLOT as f64).ceil()
         });
 
         // Recursively run calculate_max_ingots until max_ingots is calculated
@@ -310,14 +310,14 @@ impl<T: AlloyType> AlloyData<T> {
     }
 
     /// Calculates the maximum number of ingots possible with the supplied constituent percentages starting at high value and working downwards
-    fn calculate_max_ingots(percentages: &[BaseMetal<f32>], cur_ingot_num: i32) -> i32 {
-        let needed_units = cur_ingot_num as f32 * unit_constants::INGOT_UNIT_AMOUNT as f32;
+    fn calculate_max_ingots(percentages: &[BaseMetal<f64>], cur_ingot_num: i32) -> i32 {
+        let needed_units = cur_ingot_num as f64 * unit_constants::INGOT_UNIT_AMOUNT as f64;
         let mut remaining_units = needed_units;
 
         let slots_used = percentages.as_ref().iter().fold(0.0, |acc, p| {
             let units = needed_units * **p;
             remaining_units -= units;
-            acc + (units / unit_constants::MAX_UNITS_PER_SLOT as f32).ceil()
+            acc + (units / unit_constants::MAX_UNITS_PER_SLOT as f64).ceil()
         });
 
         if remaining_units != 0.0 || slots_used > 4.0 {
@@ -339,7 +339,7 @@ impl<T: AlloyType> AlloyData<T> {
         let b = &mut b[0];
 
         let ranges = Self::percentage_ranges();
-        let max_b = (ranges[1].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f32).floor() as i32;
+        let max_b = (ranges[1].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f64).floor() as i32;
 
         if two_constituents {
             if invalid_sum {
@@ -355,7 +355,7 @@ impl<T: AlloyType> AlloyData<T> {
         } else {
             let c = &mut c[0];
             let max_c =
-                (ranges[2].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f32).floor() as i32;
+                (ranges[2].max * (NUM_NUGGETS_PER_INGOT * num_ingots) as f64).floor() as i32;
 
             if invalid_sum {
                 if *c < max_c {
@@ -485,7 +485,7 @@ impl Alloy {
     ///
     /// assert_eq!(&[Copper(0.92), Tin(0.08)], percentages);
     /// ```
-    pub fn percentages(&self) -> &[BaseMetal<f32>] {
+    pub fn percentages(&self) -> &[BaseMetal<f64>] {
         match self {
             Alloy::TinBronze(alloy_data) => &alloy_data.percentages,
             Alloy::BismuthBronze(alloy_data) => &alloy_data.percentages,
@@ -558,7 +558,7 @@ impl Alloy {
     /// ```
     pub fn set_percentages(
         &mut self,
-        percentages: impl AsRef<[BaseMetal<f32>]>,
+        percentages: impl AsRef<[BaseMetal<f64>]>,
     ) -> Result<(), AlloyError> {
         match self {
             Alloy::TinBronze(alloy_data) => alloy_data.set_percentages(percentages),

@@ -3,8 +3,8 @@ mod tin_bronze_tests {
     use crate::AlloyError::*;
     use crate::prelude::*;
 
-    const MAX_COPPER: [BaseMetal<f32>; 2] = [Copper(0.92), Tin(0.08)];
-    const MIN_COPPER: [BaseMetal<f32>; 2] = [Copper(0.88), Tin(0.12)];
+    const MAX_COPPER: [BaseMetal<f64>; 2] = [Copper(0.92), Tin(0.08)];
+    const MIN_COPPER: [BaseMetal<f64>; 2] = [Copper(0.88), Tin(0.12)];
 
     #[test]
     fn test_default() {
@@ -82,8 +82,8 @@ mod tin_bronze_tests {
 mod bismuth_bronze_tests {
     use crate::prelude::*;
 
-    const MAX_COPPER: [BaseMetal<f32>; 3] = [Copper(0.70), Zinc(0.20), Bismuth(0.10)];
-    const MIN_COPPER: [BaseMetal<f32>; 3] = [Copper(0.50), Zinc(0.30), Bismuth(0.20)];
+    const MAX_COPPER: [BaseMetal<f64>; 3] = [Copper(0.70), Zinc(0.20), Bismuth(0.10)];
+    const MIN_COPPER: [BaseMetal<f64>; 3] = [Copper(0.50), Zinc(0.30), Bismuth(0.20)];
 
     #[test]
     fn test_default() {

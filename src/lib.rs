@@ -91,4 +91,4 @@ impl<T: Copy + PartialOrd> ConstituentRange<T> {
         self.min <= *item && *item <= self.max
     }
 }
-type Range = ConstituentRange<f32>;
+type Range = ConstituentRange<f64>;

@@ -40,8 +40,8 @@ impl private::AlloyType for TinBronze {
     }
 
     fn check_own_ranges_contains(
-        percentages: &[BaseMetal<f32>],
-    ) -> Result<Box<[BaseMetal<f32>]>, AlloyError> {
+        percentages: &[BaseMetal<f64>],
+    ) -> Result<Box<[BaseMetal<f64>]>, AlloyError> {
         let (mut seen_copper, mut seen_tin) = (false, false);
         let mut reorder = [Copper(0.0), Copper(0.0)];
         for p in percentages {

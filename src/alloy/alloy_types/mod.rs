@@ -16,8 +16,8 @@ pub trait AlloyType: private::AlloyType {
     /// );
     /// ```
     fn check_valid_percentages(
-        percentages: impl AsRef<[BaseMetal<f32>]>,
-    ) -> Result<Box<[BaseMetal<f32>]>, AlloyError> {
+        percentages: impl AsRef<[BaseMetal<f64>]>,
+    ) -> Result<Box<[BaseMetal<f64>]>, AlloyError> {
         if Self::check_percentages_total(&percentages) {
             Self::check_ranges_contains(&percentages)
         } else {
@@ -35,8 +35,8 @@ pub trait AlloyType: private::AlloyType {
     ///
     /// assert!(validation);
     /// ```
-    fn check_percentages_total(percentages: impl AsRef<[BaseMetal<f32>]>) -> bool {
-        let sum = percentages.as_ref().iter().map(|p| **p).sum::<f32>();
+    fn check_percentages_total(percentages: impl AsRef<[BaseMetal<f64>]>) -> bool {
+        let sum = percentages.as_ref().iter().map(|p| **p).sum::<f64>();
         (sum - 1.0).abs() < 0.01
     }
 
@@ -51,8 +51,8 @@ pub trait AlloyType: private::AlloyType {
     /// assert!(validation);
     /// ```
     fn check_ranges_contains(
-        percentages: impl AsRef<[BaseMetal<f32>]>,
-    ) -> Result<Box<[BaseMetal<f32>]>, AlloyError> {
+        percentages: impl AsRef<[BaseMetal<f64>]>,
+    ) -> Result<Box<[BaseMetal<f64>]>, AlloyError> {
         let percentages = percentages.as_ref();
         match percentages.len() {
             l if l == 2 || l == 3 => {
@@ -115,7 +115,7 @@ mod private {
         const NAME: &str;
         const RANGES: &[BaseMetal<Range>];
 
-        fn check_base_metal(value: &f32, index: usize, seen: bool) -> Result<(), AlloyError> {
+        fn check_base_metal(value: &f64, index: usize, seen: bool) -> Result<(), AlloyError> {
             if seen {
                 Err(InvalidBaseMetals)
             } else if !Self::RANGES[index].contains(value) {
@@ -127,8 +127,8 @@ mod private {
 
         fn try_from_vec(value: Vec<i32>) -> Result<Self, AlloyError>;
         fn check_own_ranges_contains(
-            percentages: &[BaseMetal<f32>],
-        ) -> Result<Box<[BaseMetal<f32>]>, AlloyError>;
+            percentages: &[BaseMetal<f64>],
+        ) -> Result<Box<[BaseMetal<f64>]>, AlloyError>;
     }
 }
 
@@ -161,7 +161,7 @@ impl Alloys {
     /// ```
     pub fn try_new(
         &self,
-        percentages: impl AsRef<[BaseMetal<f32>]>,
+        percentages: impl AsRef<[BaseMetal<f64>]>,
         num_ingots: i32,
     ) -> Result<Alloy, AlloyError> {
         Ok(match self {
